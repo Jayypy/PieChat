@@ -1,13 +1,38 @@
 import socket
+from threading import Thread
+from clint.textui import colored
 
-s = socket.socket()                                  #Create a Socket
-server_ip = input("Server IP: ")                     #ip adress of server
+s = socket.socket()                               
+server_ip = input("Server IP: ")                    
 server_port = int(input("Server Port: "))            
-s.connect((server_ip, server_port))                  #Connect to the server
-while True:
-    str = input("Send: ")                            #write a message
-    s.send(str.encode())                             #send the message
-    if(str == "Bye" or str == "bye"):                #Codeword to end conversation
-        break
-    print ("Recieve:",s.recv(1024).decode())         #Recieve a message
-s.close()                                            #close the socket 
+s.connect((server_ip, server_port))          
+
+def receive():
+    while 1:
+        rcvdData = s.recv(1024).decode()
+        print (colored.red("\nFrom: "),rcvdData)
+        print("")
+        if rcvdData == "Bye" or rcvdData == "bye":
+            print("\n+++++++++++++++++++")
+            print(colored.blue("Connection ended"))    
+            print("+++++++++++++++++++\n")
+            break
+    s.close()
+
+def send():
+    while 1:
+        str = input()                            
+        s.send(str.encode())                            
+        if(str == "Bye" or str == "bye"):  
+            print("\n+++++++++++++++++++")
+            print(colored.blue("Connection ended"))    
+            print("+++++++++++++++++++\n")          
+            break
+    s.close()
+
+def main():
+    Thread(target=receive).start()
+    Thread(target=send).start()
+
+if __name__ == '__main__':
+    main()
