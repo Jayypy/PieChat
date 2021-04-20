@@ -1,16 +1,40 @@
 import socket
+from threading import Thread
+from clint.textui import colored
 
-s = socket.socket()                                                     #create socket
-port = int(input("Port: "))                                             #initialise port 
-s.bind(('', port))                                                      #bind port to socket
-s.listen(5)                                                             #listen for connection
-c, addr = s.accept()                                                    #accept connection
-print ("Socket Up and running with a connection from",addr)             
-while True:                                                             
-    rcvdData = c.recv(1024).decode()                                    #decode recieved data
-    print ("Received:",rcvdData)                                        #print received data               
-    sendData = input("Send: ")                                          #write message
-    c.send(sendData.encode())                                           #send message
-    if(sendData == "Bye" or sendData == "bye"):                         #keyword to close connection
-        break
-c.close()                                                               #close connection
+s = socket.socket()                                             
+port = int(input("Port: "))                                     
+s.bind(('', port))                                                
+s.listen(5)                                                     
+c, addr = s.accept()                                                   
+print ("Socket Up and running with a connection from",addr)
+
+def receive():
+    while 1:
+        rcvdData = c.recv(1024).decode()                                    
+        print (colored.red("\nFrom: "), rcvdData)
+        print("")
+        if(rcvdData == "bye" or rcvdData == "Bye"):
+            print("\n+++++++++++++++++++")
+            print(colored.blue("Connection ended"))    
+            print("+++++++++++++++++++\n")
+            break
+    c.close()
+
+def send():
+    while 1:
+        sendData = input()                                         
+        c.send(sendData.encode())                                         
+        if(sendData == "Bye" or sendData == "bye"): 
+            print("\n+++++++++++++++++++")
+            print(colored.blue("Connection ended"))    
+            print("+++++++++++++++++++\n")
+            break                      
+    c.close()
+
+def main():
+    Thread(target=receive).start()
+    Thread(target=send).start()
+
+if __name__ == '__main__':
+    main()
