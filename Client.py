@@ -2,20 +2,17 @@ import socket
 from threading import Thread
 from clint.textui import colored
 
-def makesocket():
-    s = socket.socket()          
-    name = input("Your Name: ")                   
-    server_ip = input("Server IP: ")                    
-    server_port = int(input("Server Port: "))            
-    s.connect((server_ip, server_port))
-    cname = s.send(name.encode())     
-    sname = s.recv(1024).decode()
-    print("Server name: " + colored.red(sname) + "\n")
 
-    Thread(target=receive, args={s, sname}).start()
-    Thread(target=send, args=s).start()
+s = socket.socket()          
+name = input("Your Name: ")                   
+server_ip = input("Server IP: ")                    
+server_port = int(input("Server Port: "))            
+s.connect((server_ip, server_port))
+cname = s.send(name.encode())     
+sname = s.recv(1024).decode()
+print("Server name: " + colored.red(sname) + "\n")
 
-def receive(s, sname):
+def receive():
     while 1:
         rcvdData = s.recv(1024).decode()
         print (colored.red("\n" + sname + ": "),rcvdData)
@@ -27,7 +24,7 @@ def receive(s, sname):
             break
     s.close()
 
-def send(s):
+def send():
     while 1:
         str = input()                            
         s.send(str.encode())                            
@@ -39,7 +36,8 @@ def send(s):
     s.close()
 
 def main():
-    makesocket()
+    Thread(target=receive).start()
+    Thread(target=send).start()
 
 if __name__ == '__main__':
     main()
